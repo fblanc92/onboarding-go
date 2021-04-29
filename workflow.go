@@ -35,4 +35,23 @@ func TransferMoney(ctx workflow.Context, transferDetails TransferDetails) error 
 	return nil
 }
 
+func RequestOnboarding(ctx workflow.Context, onboardingTask OnBoardingTask) error {
+	retrypolicy := &temporal.RetryPolicy{
+		InitialInterval:    time.Second,
+		BackoffCoefficient: 2.0,
+		MaximumInterval:    time.Minute,
+		MaximumAttempts:    500,
+	}
+	options := workflow.ActivityOptions{
+		StartToCloseTimeout: time.Minute,
+		RetryPolicy:         retrypolicy,
+	}
+	ctx = workflow.WithActivityOptions(ctx, options)
+	err := workflow.ExecuteActivity(ctx, GotoNextDivision, onboardingTask).Get(ctx, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // @@@SNIPEND

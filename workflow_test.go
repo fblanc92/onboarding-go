@@ -19,7 +19,7 @@ func Test_Workflow(t *testing.T) {
 		ToAccount:   "002-002",
 		ReferenceID: "1234",
 	}
-	env.OnActivity(Withdraw, mock.Anything, testDetails).Return(nil)
+	//env.OnActivity(Withdraw, mock.Anything, testDetails).Return(nil)
 	env.OnActivity(Deposit, mock.Anything, testDetails).Return(nil)
 	env.ExecuteWorkflow(TransferMoney, testDetails)
 	require.True(t, env.IsWorkflowCompleted())
