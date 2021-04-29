@@ -2,44 +2,32 @@ package main
 
 import (
 	"log"
+	"onboarding-go/app"
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-
-	"onboarding-go/app"
 )
 
 // @@@SNIPSTART onboarding-go-worker
 func main() {
-	// Create the client object just once per process
-	c, err := client.NewClient(client.Options{})
+	// The client and worker are heavyweight objects that should be created once per process.
+	c, err := client.NewClient(client.Options{
+		HostPort: client.DefaultHostPort,
+	})
 	if err != nil {
-		log.Fatalln("unable to create Temporal client", err)
+		log.Fatalln("Unable to create client", err)
 	}
 	defer c.Close()
-	// This worker hosts both Worker and Activity functions
 
-	wT := worker.New(c, app.TransferMoneyTaskQueue, worker.Options{})
-	wT.RegisterWorkflow(app.TransferMoney)
-	wT.RegisterActivity(app.Withdraw)
-	wT.RegisterActivity(app.Deposit)
+	w := worker.New(c, "child-workflow", worker.Options{})
 
-	wO := worker.New(c, app.OnboardingTaskQueue, worker.Options{})
-	wO.RegisterWorkflow(app.RequestOnboarding)
-	wO.RegisterActivity(app.GotoNextDivision)
+	w.RegisterWorkflow(app.SampleParentWorkflow)
+	w.RegisterWorkflow(app.SampleChildWorkflow)
+	w.RegisterActivity(app.SampleActivity)
 
-	// Start listening to the Task Queue
-	run_option := "Onboarding"
-	if run_option == "Transfer" {
-		err = wT.Run(worker.InterruptCh())
-		if err != nil {
-			log.Fatalln("unable to start TRANSFER Worker", err)
-		}
-	} else if run_option == "Onboarding" {
-		err = wO.Run(worker.InterruptCh())
-		if err != nil {
-			log.Fatalln("unable to start ONBOARDING Worker", err)
-		}
+	err = w.Run(worker.InterruptCh())
+	if err != nil {
+		log.Fatalln("Unable to start worker", err)
 	}
 }
 
