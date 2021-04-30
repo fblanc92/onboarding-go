@@ -2,6 +2,9 @@ package app
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 	"time"
 
 	"go.temporal.io/sdk/temporal"
@@ -63,7 +66,7 @@ func SampleParentWorkflow(ctx workflow.Context) (string, error) {
 	}
 	logger.Info("Parent execution completed.", "Result", result1+" "+result2)
 
-	return "\n.....Result......\n" + "Child Workflow GSUITE:\t\t" + result1 + "\nChild Workflow MSFT:\t\t" + result2 + "\nParent Workflow Activity:\t" + result3 + "\n", nil
+	return "\n.....Result......\n" + "Child Workflow GSUITE:\n" + result1 + "\nChild Workflow MSFT:\t\t" + result2 + "\nParent Workflow Activity:\t" + result3 + "\n", nil
 }
 
 func SampleActivity(input string) (string, error) {
@@ -79,6 +82,20 @@ func MsftActivity(input string) (string, error) {
 }
 
 func GsuiteActivity(input string) (string, error) {
+	// if input == "Gsuite_Create New Password" {
+	// 	if os.Getenv("GSUITE_PASS") != "True" {
+	// 		return os.Getenv("GSUITE_PASS"), fmt.Errorf("\n\nERROR\n\n")
+	// 	}
+	// }
+	if input == "Gsuite_Create New Password" {
+		content, err := ioutil.ReadFile("GSUITE_PASS")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if string(content) != "True" {
+			return os.Getenv("GSUITE_PASS"), fmt.Errorf("\n\nERROR -> Gsuite_Create New Password\n\n")
+		}
+	}
 	name := "gsuiteActivity"
 	fmt.Printf("Run %s with input %v \n", name, input)
 	return "Result_" + input, nil
