@@ -14,10 +14,16 @@ func MsftWorkflow(ctx workflow.Context, name string) (string, error) {
 	ctx = workflow.WithActivityOptions(ctx, ao)
 	logger := workflow.GetLogger(ctx)
 	logger.Info("MSFT workflow execution")
-	var result string
-	err := workflow.ExecuteActivity(ctx, MsftActivity, "msft").Get(ctx, &result)
-	if err != nil {
-		return result, err
+	invocations := [9]string{"MSFT_Sign in office.com", "MSFT_Select License", "MSFT_Add User Data", "MSFT_Generate Password", "MSFT_Configure New Password Policies", "MSFT_Finish User Creation", "MSFT_Add User To Groups", "MSFT_Add User To Calendars", "MSFT_Configure Calendars"}
+	var result, result_msft string
+	for i := 0; i < len(invocations); i++ {
+		err := workflow.ExecuteActivity(ctx, MsftActivity, invocations[i]).Get(ctx, &result)
+		// result_msft += result + time.Now().String() + "\n"
+		current_time := time.Now()
+		result_msft += "\n" + result + " - " + current_time.Format("2006-01-02 15:04:05")
+		if err != nil {
+			return result, err
+		}
 	}
-	return result, nil
+	return result_msft, nil
 }

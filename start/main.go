@@ -5,6 +5,7 @@ import (
 	"log"
 	"onboarding-go/app"
 
+	"github.com/pborman/uuid"
 	"go.temporal.io/sdk/client"
 )
 
@@ -19,13 +20,13 @@ func main() {
 	defer c.Close()
 
 	// This workflow ID can be user business logic identifier as well.
-	workflowID := "parent-workflow_"
+	workflowID := "onboarding_process_" + uuid.New()
 	workflowOptions := client.StartWorkflowOptions{
 		ID:        workflowID,
 		TaskQueue: "child-workflow",
 	}
 
-	workflowRun, err := c.ExecuteWorkflow(context.Background(), workflowOptions, app.SampleParentWorkflow)
+	workflowRun, err := c.ExecuteWorkflow(context.Background(), workflowOptions, app.OnboardingWorkflow)
 	if err != nil {
 		log.Fatalln("Unable to execute workflow", err)
 	}

@@ -21,14 +21,12 @@ func main() {
 
 	w := worker.New(c, "child-workflow", worker.Options{})
 
-	w.RegisterWorkflow(app.SampleParentWorkflow)
-	w.RegisterWorkflow(app.SampleChildWorkflow)
+	w.RegisterWorkflow(app.OnboardingWorkflow)
 	w.RegisterWorkflow(app.GsuiteWorkflow)
 	w.RegisterWorkflow(app.MsftWorkflow)
-	w.RegisterActivity(app.SampleActivity)
 	w.RegisterActivity(app.GsuiteActivity)
 	w.RegisterActivity(app.MsftActivity)
-	w.RegisterActivity(app.FinalActivity)
+	w.RegisterActivity(app.SendMailActivity)
 
 	err = w.Run(worker.InterruptCh())
 	if err != nil {
