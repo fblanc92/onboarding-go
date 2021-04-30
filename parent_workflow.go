@@ -2,7 +2,9 @@ package app
 
 import (
 	"fmt"
+	"time"
 
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
@@ -10,20 +12,35 @@ import (
 
 // SampleParentWorkflow workflow definition
 func SampleParentWorkflow(ctx workflow.Context) (string, error) {
-	logger := workflow.GetLogger(ctx)
+	// workflow activity config
+	retrypolicy := &temporal.RetryPolicy{
+		InitialInterval:    time.Second,
+		BackoffCoefficient: 2.0,
+		MaximumInterval:    time.Minute,
+		MaximumAttempts:    500,
+	}
+	options := workflow.ActivityOptions{
+		StartToCloseTimeout: time.Minute,
+		RetryPolicy:         retrypolicy,
+	}
 
+	//logger
+	logger := workflow.GetLogger(ctx)
+	// childs
 	cwo := workflow.ChildWorkflowOptions{}
 	ctx = workflow.WithChildOptions(ctx, cwo)
-
+	// triggers
 	gsuite := true
 	msft := true
 
-	// var result string
+	// child workflows results
 	var result1 string
 	var result2 string
+	// parent workflow activity result
 	var result3 string
 	if gsuite {
 		err := workflow.ExecuteChildWorkflow(ctx, GsuiteWorkflow, "gsuite").Get(ctx, &result1)
+		result1 += " " + time.Now().String()
 		if err != nil {
 			logger.Error("Parent execution received child execution failure.", "Error", err)
 			return result1, err
@@ -31,17 +48,22 @@ func SampleParentWorkflow(ctx workflow.Context) (string, error) {
 	}
 	if msft {
 		err := workflow.ExecuteChildWorkflow(ctx, MsftWorkflow, "msft").Get(ctx, &result2)
+		result2 += " " + time.Now().String()
 		if err != nil {
 			logger.Error("Parent execution received child execution failure.", "Error", err)
 			return result2, err
 		}
 	}
+
+	ctx = workflow.WithActivityOptions(ctx, options)
 	err := workflow.ExecuteActivity(ctx, FinalActivity, "final").Get(ctx, &result3)
+	result3 += " " + time.Now().String()
 	if err != nil {
 		return result3, err
 	}
 	logger.Info("Parent execution completed.", "Result", result1+" "+result2)
-	return result1 + " " + result2, nil
+
+	return "\n.....Result......\n" + "Child Workflow GSUITE:\t\t" + result1 + "\nChild Workflow MSFT:\t\t" + result2 + "\nParent Workflow Activity:\t" + result3 + "\n", nil
 }
 
 func SampleActivity(input string) (string, error) {

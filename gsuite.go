@@ -14,10 +14,14 @@ func GsuiteWorkflow(ctx workflow.Context, name string) (string, error) {
 	ctx = workflow.WithActivityOptions(ctx, ao)
 	logger := workflow.GetLogger(ctx)
 	logger.Info("Gsuite workflow execution")
-	var result string
-	err := workflow.ExecuteActivity(ctx, GsuiteActivity, "gsuite").Get(ctx, &result)
-	if err != nil {
-		return result, err
+	invocations := [10]string{"acc_creation", "1", "2", "1", "2", "1", "2", "1", "2", "fin"}
+	var result, result_gsuite string
+	for i := 0; i < 10; i++ {
+		err := workflow.ExecuteActivity(ctx, GsuiteActivity, invocations[i]).Get(ctx, &result)
+		result_gsuite += result + time.Now().String() + "\n"
+		if err != nil {
+			return result, err
+		}
 	}
-	return result, nil
+	return result_gsuite, nil
 }

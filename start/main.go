@@ -10,24 +10,6 @@ import (
 
 // @@@SNIPSTART onboarding-go-start-workflow
 func main() {
-	// Create the client object just once per process
-	// onboardingDetails := app.OnBoardingTask{
-	// 	TaskID:       1,
-	// 	FromDivision: "Turbine",
-	// 	ToDivision:   "Gmail",
-	// 	TrackingID:   1,
-	// }
-
-	// weO, errO := c.ExecuteWorkflow(context.Background(), optionsO, app.RequestOnboarding, onboardingDetails)
-
-	// if errO != nil {
-	// 	log.Fatalln("error starting RequestOnboarding workflow", errO)
-	// }
-	// log.Println("Started workflow",
-	// 	"WorkflowID", weO.GetID(), "RunID", weO.GetRunID())
-	// printOnboardingResults(onboardingDetails, weO.GetID(), weO.GetRunID())
-
-	// The client is a heavyweight object that should be created once per process.
 	c, err := client.NewClient(client.Options{
 		HostPort: client.DefaultHostPort,
 	})
