@@ -69,12 +69,6 @@ func SampleParentWorkflow(ctx workflow.Context) (string, error) {
 	return "\n.....Result......\n" + "Child Workflow GSUITE:\n" + result1 + "\nChild Workflow MSFT:\t\t" + result2 + "\nParent Workflow Activity:\t" + result3 + "\n", nil
 }
 
-func SampleActivity(input string) (string, error) {
-	name := "sampleActivity"
-	fmt.Printf("Run %s with input %v \n", name, input)
-	return "Result_" + input, nil
-}
-
 func MsftActivity(input string) (string, error) {
 	name := "msftActivity"
 	fmt.Printf("Run %s with input %v \n", name, input)
