@@ -76,11 +76,6 @@ func MsftActivity(input string) (string, error) {
 }
 
 func GsuiteActivity(input string) (string, error) {
-	// if input == "Gsuite_Create New Password" {
-	// 	if os.Getenv("GSUITE_PASS") != "True" {
-	// 		return os.Getenv("GSUITE_PASS"), fmt.Errorf("\n\nERROR\n\n")
-	// 	}
-	// }
 	if input == "Gsuite_Create New Password" {
 		content, err := ioutil.ReadFile("GSUITE_PASS")
 		if err != nil {
